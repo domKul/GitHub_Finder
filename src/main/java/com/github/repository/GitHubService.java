@@ -1,13 +1,16 @@
 package com.github.repository;
 
-import com.github.GitHubRepository;
+import com.github.model.GitHubRepository;
+import com.github.model.UserInfo;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+@Repository
 public interface GitHubService {
     List<GitHubRepository> getUserRepositories(String username);
     String getLastCommitSha(String username, String repositoryName);
     String getLastBranchName(String username, String repositoryName);
+    UserInfo informationAboutUser(String userName);
 
 
 }

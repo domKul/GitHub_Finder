@@ -1,8 +1,9 @@
 package com.github.service;
 
-import com.github.CommitInfo;
+import com.github.model.CommitInfo;
+import com.github.model.GitHubRepository;
+import com.github.model.UserInfo;
 import com.github.repository.GitHubService;
-import com.github.GitHubRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -30,22 +31,38 @@ public class GitHubServiceImpl implements GitHubService {
         if (commits != null && commits.length > 0) {
             return commits[0].getSha();
         }
-
         return null;
     }
 
-    public String getLastBranchName(String username, String repositoryName){
+    public String getLastBranchName(String username, String repositoryName) {
         String commitsUrl = GITHUB_API_URL + "/repos/" + username + "/" + repositoryName + "/branches";
         RestTemplate restTemplate = new RestTemplate();
         CommitInfo[] forObject = restTemplate.getForObject(commitsUrl, CommitInfo[].class);
 
-        if (forObject != null && forObject.length > 0){
+        if (forObject != null && forObject.length > 0) {
             return forObject[0].getBranchName();
         }
 
         return null;
     }
 
+    public UserInfo informationAboutUser(String userName) {
+        List<GitHubRepository> repositories = getUserRepositories(userName);
+
+        UserInfo userInfo = new UserInfo();
+        userInfo.setUsername(userName);
+        userInfo.setRepositories(repositories);
+
+        for (GitHubRepository repository : repositories) {
+            String lastCommitSha = getLastCommitSha(userName, repository.getName());
+            String lastBranchName = getLastBranchName(userName, repository.getName());
+            repository.setBranchName(lastBranchName);
+
+            repository.setLastCommitSha(lastCommitSha);
+        }
+
+        return userInfo;
+    }
 
 
 }

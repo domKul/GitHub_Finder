@@ -1,4 +1,4 @@
-package com.github;
+package com.github.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -13,6 +13,7 @@ public class GitHubRepository {
         return branchName;
     }
 
+
     public void setBranchName(String branchName) {
         this.branchName = branchName;
     }
@@ -24,7 +25,6 @@ public class GitHubRepository {
     public void setName(String name) {
         this.name = name;
     }
-
 
 
     public String getLastCommitSha() {

@@ -1,12 +1,16 @@
 package com.github.service;
 
+import com.github.exception.UserNotFoundException;
 import com.github.model.CommitInfo;
+import com.github.model.GitHubBranch;
 import com.github.model.GitHubRepository;
 import com.github.model.UserInfo;
 import com.github.repository.GitHubService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,8 +22,18 @@ public class GitHubServiceImpl implements GitHubService {
     public List<GitHubRepository> getUserRepositories(String username) {
         String repoUrl = GITHUB_API_URL + "/users/" + username + "/repos";
         RestTemplate restTemplate = new RestTemplate();
-        GitHubRepository[] repositories = restTemplate.getForObject(repoUrl, GitHubRepository[].class);
-        return Arrays.asList(repositories);
+
+        try {
+            GitHubRepository[] repositories = restTemplate.getForObject(repoUrl, GitHubRepository[].class);
+
+            if (repositories != null) {
+                return Arrays.asList(repositories);
+            } else {
+                throw new UserNotFoundException("User not Found");
+            }
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new UserNotFoundException("User not Found");
+        }
     }
 
     @Override
@@ -34,34 +48,37 @@ public class GitHubServiceImpl implements GitHubService {
         return null;
     }
 
-    public String getLastBranchName(String username, String repositoryName) {
-        String commitsUrl = GITHUB_API_URL + "/repos/" + username + "/" + repositoryName + "/branches";
-        RestTemplate restTemplate = new RestTemplate();
-        CommitInfo[] forObject = restTemplate.getForObject(commitsUrl, CommitInfo[].class);
-
-        if (forObject != null && forObject.length > 0) {
-            return forObject[0].getBranchName();
-        }
-
-        return null;
-    }
 
     public UserInfo informationAboutUser(String userName) {
+
         List<GitHubRepository> repositories = getUserRepositories(userName);
 
         UserInfo userInfo = new UserInfo();
-        userInfo.setUsername(userName);
+        userInfo.setOwner(userName);
         userInfo.setRepositories(repositories);
 
         for (GitHubRepository repository : repositories) {
             String lastCommitSha = getLastCommitSha(userName, repository.getName());
-            String lastBranchName = getLastBranchName(userName, repository.getName());
-            repository.setBranchName(lastBranchName);
+            List<GitHubBranch> branches = getBranches(userName, repository.getName());
+            repository.setBranchList(branches);
 
             repository.setLastCommitSha(lastCommitSha);
         }
 
         return userInfo;
+    }
+
+    @Override
+    public List<GitHubBranch> getBranches(String username, String repositoryName) {
+        String branchesUrl = GITHUB_API_URL + "/repos/" + username + "/" + repositoryName + "/branches";
+        RestTemplate restTemplate = new RestTemplate();
+        GitHubBranch[] branches = restTemplate.getForObject(branchesUrl, GitHubBranch[].class);
+
+        if (branches != null) {
+            return Arrays.asList(branches);
+        }
+
+        return new ArrayList<>();
     }
 
 

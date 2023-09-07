@@ -2,21 +2,25 @@ package com.github.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.List;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GitHubRepository {
     private String name;
     private String lastCommitSha;
 
-    private String branchName;
 
-    public String getBranchName() {
-        return branchName;
+
+    private List<GitHubBranch> branchList;
+
+    public List<GitHubBranch> getBranchList() {
+        return branchList;
     }
 
-
-    public void setBranchName(String branchName) {
-        this.branchName = branchName;
+    public void setBranchList(List<GitHubBranch> branchList) {
+        this.branchList = branchList;
     }
+
 
     public String getName() {
         return name;

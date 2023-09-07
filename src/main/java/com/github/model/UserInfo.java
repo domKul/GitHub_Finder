@@ -3,15 +3,15 @@ package com.github.model;
 import java.util.List;
 
 public class UserInfo {
-    private String username;
+    private String owner;
     private List<GitHubRepository> repositories;
 
-    public String getUsername() {
-        return username;
+    public String getOwner() {
+        return owner;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
     public List<GitHubRepository> getRepositories() {

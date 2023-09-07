@@ -5,16 +5,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GitHubBranch {
-    private String name;
+    @JsonProperty("name")
+    private String branchName;
     @JsonProperty("commit")
     private CommitInfo commit;
 
-    public String getName() {
-        return name;
+    public String getBranchName() {
+        return branchName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setBranchName(String branchName) {
+        this.branchName = branchName;
     }
 
     public CommitInfo getCommit() {

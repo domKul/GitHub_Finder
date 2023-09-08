@@ -1,12 +1,15 @@
 package com.github.service;
 
+import com.github.exception.MediaTypeNotFound;
 import com.github.exception.UserNotFoundException;
 import com.github.model.CommitInfo;
 import com.github.model.GitHubBranch;
 import com.github.model.GitHubRepository;
 import com.github.model.UserInfo;
 import com.github.repository.GitHubService;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -22,18 +25,15 @@ public class GitHubServiceImpl implements GitHubService {
     public List<GitHubRepository> getUserRepositories(String username) {
         String repoUrl = GITHUB_API_URL + "/users/" + username + "/repos";
         RestTemplate restTemplate = new RestTemplate();
-
         try {
             GitHubRepository[] repositories = restTemplate.getForObject(repoUrl, GitHubRepository[].class);
-
             if (repositories != null) {
                 return Arrays.asList(repositories);
-            } else {
-                throw new UserNotFoundException("User not Found");
             }
         } catch (HttpClientErrorException.NotFound e) {
             throw new UserNotFoundException("User not Found");
         }
+        return null;
     }
 
     @Override
@@ -48,9 +48,8 @@ public class GitHubServiceImpl implements GitHubService {
         return null;
     }
 
-
+    @Override
     public UserInfo informationAboutUser(String userName) {
-
         List<GitHubRepository> repositories = getUserRepositories(userName);
 
         UserInfo userInfo = new UserInfo();
@@ -77,9 +76,10 @@ public class GitHubServiceImpl implements GitHubService {
         if (branches != null) {
             return Arrays.asList(branches);
         }
-
         return new ArrayList<>();
     }
+
+
 
 
 }

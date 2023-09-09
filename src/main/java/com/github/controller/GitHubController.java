@@ -18,7 +18,7 @@ public class GitHubController {
         this.gitHubService = gitHubService;
     }
 
-    @GetMapping(value = "/user-info/{username}",produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/user-info/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> getUserInfo(@PathVariable String username,
                                               @RequestHeader("Accept") MediaType acceptHeader)
             throws HttpMediaTypeNotAcceptableException {
@@ -27,7 +27,7 @@ public class GitHubController {
             throw new HttpMediaTypeNotAcceptableException("Only JSON is accepted");
         }
         UserInfo userInfo = gitHubService.informationAboutUser(username);
-            return ResponseEntity.ok(userInfo);
+        return ResponseEntity.ok(userInfo);
 
     }
 }

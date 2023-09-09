@@ -10,7 +10,6 @@ public class GitHubRepository {
     private String lastCommitSha;
 
 
-
     private List<GitHubBranch> branchList;
 
     public List<GitHubBranch> getBranchList() {

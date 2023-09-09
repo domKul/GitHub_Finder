@@ -6,11 +6,15 @@ import com.github.model.UserInfo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
 @Repository
 public interface GitHubService {
     List<GitHubRepository> getUserRepositories(String username);
+
     String getLastCommitSha(String username, String repositoryName);
-     UserInfo informationAboutUser(String userName);
-    List<GitHubBranch>getBranches(String username, String repositoryName);
+
+    UserInfo informationAboutUser(String userName);
+
+    List<GitHubBranch> getBranches(String username, String repositoryName);
 
 }

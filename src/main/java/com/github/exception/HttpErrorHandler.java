@@ -3,10 +3,8 @@ package com.github.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpMediaTypeException;
-import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.HashMap;
@@ -22,6 +20,7 @@ public class HttpErrorHandler extends ResponseEntityExceptionHandler {
         errorResponse.put("Message ", userNotFoundException.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
+
     @ExceptionHandler(HttpMediaTypeException.class)
     public ResponseEntity<Object> handleMediaTypeNotAcceptableException() {
         CustomErrorResponse errorResponse = new CustomErrorResponse(HttpStatus.NOT_ACCEPTABLE.value(), "Only JSON is accepted");

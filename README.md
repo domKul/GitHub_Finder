@@ -20,13 +20,13 @@ Status: 200 OK
     "owner": "domkul",
     "repositories": [
         {
-            "name": "brudnopis",
-            "lastCommitSha": "dcbc8254c44ee7aaec3c7d02dbb9184f00113bdf",
+            "name": "GitHub_Finder",
+            "lastCommitSha": "e269b7ec220dc88db7f728026fb9f2b837e0716d",
             "branchList": [
                 {
-                    "name": "main",
+                    "name": "master",
                     "commit": {
-                        "sha": "dcbc8254c44ee7aaec3c7d02dbb9184f00113bdf"
+                        "sha": "e269b7ec220dc88db7f728026fb9f2b837e0716d"
                     }
                 }
             ]

@@ -1,6 +1,5 @@
 package com.github.controller;
 
-import com.github.exception.MediaTypeNotFound;
 import com.github.model.UserInfo;
 import com.github.repository.GitHubService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +7,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 
 @RestController
 @RequestMapping("/github")

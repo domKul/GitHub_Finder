@@ -1,15 +1,12 @@
 package com.github.service;
 
-import com.github.exception.MediaTypeNotFound;
 import com.github.exception.UserNotFoundException;
 import com.github.model.CommitInfo;
 import com.github.model.GitHubBranch;
 import com.github.model.GitHubRepository;
 import com.github.model.UserInfo;
 import com.github.repository.GitHubService;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -78,8 +75,6 @@ public class GitHubServiceImpl implements GitHubService {
         }
         return new ArrayList<>();
     }
-
-
 
 
 }

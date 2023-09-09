@@ -2,7 +2,7 @@
 
 This is a Java Spring Boot application that provides an API to list GitHub repositories of a user that are not forks. It also handles error responses for non-existing users and unsupported media types.
 
-### Endpoint List:
+## Endpoint List:
 - getUserInfo(PathVariable String username, @RequestHeader("Accept") MediaType acceptHeader)
 
    endpint addres --> http://localhost:8080/github/user-info/domkul 
@@ -15,7 +15,6 @@ EXAMPLE OF RESPOSN
 
 #### Status  200 OK 
 ```   
-Status: 200 OK
 {
     "owner": "domkul",
     "repositories": [

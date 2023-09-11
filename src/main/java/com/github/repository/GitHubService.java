@@ -4,6 +4,7 @@ import com.github.model.GitHubBranch;
 import com.github.model.GitHubRepository;
 import com.github.model.UserInfo;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
 public interface GitHubService {
     List<GitHubRepository> getUserRepositories(String username);
 
-    String getLastCommitSha(String username, String repositoryName);
+    Mono<String> getLastCommitSha(String username, String repositoryName);
 
     UserInfo informationAboutUser(String userName);
 

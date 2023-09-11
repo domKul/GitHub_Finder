@@ -8,7 +8,8 @@ import com.github.model.UserInfo;
 import com.github.repository.GitHubService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,13 +18,22 @@ import java.util.List;
 @Service
 public class GitHubServiceImpl implements GitHubService {
     private static final String GITHUB_API_URL = "https://api.github.com";
+    private final WebClient webClient;
+
+    public GitHubServiceImpl(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.baseUrl(GITHUB_API_URL).build();
+    }
 
     @Override
     public List<GitHubRepository> getUserRepositories(String username) {
-        String repoUrl = GITHUB_API_URL + "/users/" + username + "/repos";
-        RestTemplate restTemplate = new RestTemplate();
+        String repoUrl = "/users/" + username + "/repos";
         try {
-            GitHubRepository[] repositories = restTemplate.getForObject(repoUrl, GitHubRepository[].class);
+            GitHubRepository[] repositories = webClient.get()
+                    .uri(repoUrl)
+                    .retrieve()
+                    .bodyToMono(GitHubRepository[].class)
+                    .block();
+
             if (repositories != null) {
                 return Arrays.asList(repositories);
             }
@@ -34,15 +44,19 @@ public class GitHubServiceImpl implements GitHubService {
     }
 
     @Override
-    public String getLastCommitSha(String username, String repositoryName) {
-        String commitsUrl = GITHUB_API_URL + "/repos/" + username + "/" + repositoryName + "/commits";
-        RestTemplate restTemplate = new RestTemplate();
-        CommitInfo[] commits = restTemplate.getForObject(commitsUrl, CommitInfo[].class);
+    public Mono<String> getLastCommitSha(String username, String repositoryName) {
+        String commitsUrl = "/repos/" + username + "/" + repositoryName + "/commits";
 
-        if (commits != null && commits.length > 0) {
-            return commits[0].getSha();
-        }
-        return null;
+        return webClient.get()
+                .uri(commitsUrl)
+                .retrieve()
+                .bodyToMono(CommitInfo[].class)
+                .map(commits -> {
+                    if (commits != null && commits.length > 0) {
+                        return commits[0].getSha();
+                    }
+                    return null;
+                });
     }
 
     @Override
@@ -54,7 +68,7 @@ public class GitHubServiceImpl implements GitHubService {
         userInfo.setRepositories(repositories);
 
         for (GitHubRepository repository : repositories) {
-            String lastCommitSha = getLastCommitSha(userName, repository.getName());
+            String lastCommitSha = getLastCommitSha(userName, repository.getName()).block();
             List<GitHubBranch> branches = getBranches(userName, repository.getName());
             repository.setBranchList(branches);
 
@@ -66,15 +80,17 @@ public class GitHubServiceImpl implements GitHubService {
 
     @Override
     public List<GitHubBranch> getBranches(String username, String repositoryName) {
-        String branchesUrl = GITHUB_API_URL + "/repos/" + username + "/" + repositoryName + "/branches";
-        RestTemplate restTemplate = new RestTemplate();
-        GitHubBranch[] branches = restTemplate.getForObject(branchesUrl, GitHubBranch[].class);
+        String branchesUrl = "/repos/" + username + "/" + repositoryName + "/branches";
+
+        GitHubBranch[] branches = webClient.get()
+                .uri(branchesUrl)
+                .retrieve()
+                .bodyToMono(GitHubBranch[].class)
+                .block();
 
         if (branches != null) {
             return Arrays.asList(branches);
         }
         return new ArrayList<>();
     }
-
-
 }

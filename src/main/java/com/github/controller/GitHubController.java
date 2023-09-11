@@ -1,5 +1,6 @@
 package com.github.controller;
 
+import com.github.model.GitHubRepository;
 import com.github.model.UserInfo;
 import com.github.repository.GitHubService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/github")
@@ -19,7 +22,7 @@ public class GitHubController {
     }
 
     @GetMapping(value = "/user-info/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> getUserInfo(@PathVariable String username,
+    public ResponseEntity<UserInfo> getUserInfo(@PathVariable String username,
                                               @RequestHeader("Accept") MediaType acceptHeader)
             throws HttpMediaTypeNotAcceptableException {
 
@@ -29,5 +32,10 @@ public class GitHubController {
         UserInfo userInfo = gitHubService.informationAboutUser(username);
         return ResponseEntity.ok(userInfo);
 
+    }
+
+    @GetMapping(value = "sha/{name}/{repo}")
+    public ResponseEntity<List<GitHubRepository>>getAsha(@PathVariable String name){
+        return ResponseEntity.ok(gitHubService.getUserRepositories(name));
     }
 }

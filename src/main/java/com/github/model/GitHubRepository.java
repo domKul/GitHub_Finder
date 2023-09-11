@@ -8,8 +8,6 @@ import java.util.List;
 public class GitHubRepository {
     private String name;
     private String lastCommitSha;
-
-
     private List<GitHubBranch> branchList;
 
     public List<GitHubBranch> getBranchList() {

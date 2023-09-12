@@ -1,19 +1,21 @@
 package com.github.service;
 
-import com.github.exception.UserNotFoundException;
+import com.github.exception.*;
 import com.github.model.CommitInfo;
 import com.github.model.GitHubBranch;
 import com.github.model.GitHubRepository;
 import com.github.model.UserInfo;
 import com.github.repository.GitHubService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class GitHubServiceImpl implements GitHubService {
@@ -27,20 +29,21 @@ public class GitHubServiceImpl implements GitHubService {
     @Override
     public List<GitHubRepository> getUserRepositories(String username) {
         String repoUrl = "/users/" + username + "/repos";
-        try {
-            GitHubRepository[] repositories = webClient.get()
-                    .uri(repoUrl)
-                    .retrieve()
-                    .bodyToMono(GitHubRepository[].class)
-                    .block();
-
-            if (repositories != null) {
-                return Arrays.asList(repositories);
-            }
-        } catch (HttpClientErrorException.NotFound e) {
-            throw new UserNotFoundException("User not Found");
-        }
-        return null;
+        return webClient.get()
+                .uri(repoUrl)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response -> {
+                    if (HttpStatus.FORBIDDEN.equals(response.statusCode())) {
+                        return Mono.error(new ForbiddenAccessException("Access Forbidden"));
+                    }else if (HttpStatus.NOT_FOUND.equals(response.statusCode())){
+                        return  Mono.error(new UserNotFoundException("User Not Found"));
+                    }else{
+                        return Mono.error(new UserNotFoundException("Something went wrong"));
+                    }
+                })
+                .bodyToFlux(GitHubRepository.class)
+                .collectList()
+                .block();
     }
 
     @Override
@@ -50,17 +53,32 @@ public class GitHubServiceImpl implements GitHubService {
         return webClient.get()
                 .uri(commitsUrl)
                 .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response ->
+                        Mono.error(new UserNotFoundException("User  not found")))
                 .bodyToMono(CommitInfo[].class)
-                .map(commits -> {
+                .map((CommitInfo[] commits) -> {
                     if (commits != null && commits.length > 0) {
                         return commits[0].getSha();
                     }
-                    return null;
+                    return " No Sha";
                 });
     }
 
     @Override
-    public UserInfo informationAboutUser(String userName) {
+    public Flux<GitHubBranch> getBranches(String username, String repositoryName) {
+        String branchesUrl = "/repos/" + username + "/" + repositoryName + "/branches";
+
+        return webClient.get()
+                .uri(branchesUrl)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, branch -> Mono.error(new BranchNotFoundException("Branch Not Found")))
+                .bodyToFlux(GitHubBranch.class)
+                .switchIfEmpty(Flux.empty());
+    }
+
+    @Override
+    public UserInfo informationAboutUser(String userName, MediaType acceptedHeader) throws HttpMediaTypeNotAcceptableException {
+        jsonAccepter(acceptedHeader);
         List<GitHubRepository> repositories = getUserRepositories(userName);
 
         UserInfo userInfo = new UserInfo();
@@ -69,28 +87,19 @@ public class GitHubServiceImpl implements GitHubService {
 
         for (GitHubRepository repository : repositories) {
             String lastCommitSha = getLastCommitSha(userName, repository.getName()).block();
-            List<GitHubBranch> branches = getBranches(userName, repository.getName());
-            repository.setBranchList(branches);
-
+            Flux<GitHubBranch> branches = getBranches(userName, repository.getName());
+            List<GitHubBranch> branchList = branches.collectList().block();
+            repository.setBranchList(branchList);
             repository.setLastCommitSha(lastCommitSha);
         }
 
         return userInfo;
     }
 
-    @Override
-    public List<GitHubBranch> getBranches(String username, String repositoryName) {
-        String branchesUrl = "/repos/" + username + "/" + repositoryName + "/branches";
-
-        GitHubBranch[] branches = webClient.get()
-                .uri(branchesUrl)
-                .retrieve()
-                .bodyToMono(GitHubBranch[].class)
-                .block();
-
-        if (branches != null) {
-            return Arrays.asList(branches);
+    private void jsonAccepter(MediaType acceptHeader) throws HttpMediaTypeNotAcceptableException {
+        if (!MediaType.APPLICATION_JSON.isCompatibleWith(acceptHeader)) {
+            throw new HttpMediaTypeNotAcceptableException("Only JSON is accepted");
         }
-        return new ArrayList<>();
     }
+
 }

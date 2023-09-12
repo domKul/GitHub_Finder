@@ -20,6 +20,21 @@ public class HttpErrorHandler extends ResponseEntityExceptionHandler {
         errorResponse.put("Message ", userNotFoundException.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
+    @ExceptionHandler(ForbiddenAccessException.class)
+    public ResponseEntity<Map<String, Object>> handleForbiddenAccess(ForbiddenAccessException forbiddenAccessException) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("Status ", HttpStatus.FORBIDDEN.value());
+        errorResponse.put("Message ", forbiddenAccessException.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+    }
+    @ExceptionHandler(BranchNotFoundException.class)
+    public ResponseEntity<Map<String,Object>>handleBranchNotFound(BranchNotFoundException branchNotFoundException){
+        Map<String,Object> errorResponse = new HashMap<>();
+        errorResponse.put("Status ",HttpStatus.NOT_FOUND.value());
+        errorResponse.put("Message ",branchNotFoundException.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
 
     @ExceptionHandler(HttpMediaTypeException.class)
     public ResponseEntity<Object> handleMediaTypeNotAcceptableException() {

@@ -75,7 +75,8 @@ public class GitHubServiceImpl implements GitHubService {
         return webClient.get()
                 .uri(branchesUrl)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, branch -> Mono.error(new BranchNotFoundException("Branch Not Found")))
+                .onStatus(HttpStatusCode::is4xxClientError, branch -> Mono.error(
+                        new BranchNotFoundException("Branch Not Found")))
                 .bodyToFlux(GitHubBranch.class)
                 .switchIfEmpty(Flux.empty());
     }

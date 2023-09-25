@@ -14,7 +14,7 @@ import java.util.Map;
 public class HttpErrorHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleUserNotFound(UserNotFoundException userNotFoundException) {
+    public ResponseEntity<Object> handleUserNotFound(UserNotFoundException userNotFoundException) {
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("status ", HttpStatus.NOT_FOUND.value());
         errorResponse.put("Message ", userNotFoundException.getMessage());

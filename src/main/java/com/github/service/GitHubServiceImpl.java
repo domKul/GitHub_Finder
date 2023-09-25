@@ -8,7 +8,7 @@ import com.github.model.GitHubBranch;
 import com.github.model.GitHubRepository;
 import com.github.model.UserInfo;
 import com.github.repository.GitHubService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -22,12 +22,12 @@ import java.util.List;
 
 @Service
 public class GitHubServiceImpl implements GitHubService {
-    private static final String GITHUB_API_URL = "https://api.github.com";
+
     private final WebClient webClient;
 
-    @Autowired
-    public GitHubServiceImpl(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl(GITHUB_API_URL).build();
+    public GitHubServiceImpl(WebClient.Builder webClientBuilder,
+                             @Value("${github.api.url}") String githubApiUrl) {
+        this.webClient = webClientBuilder.baseUrl(githubApiUrl).build();
     }
 
     @Override

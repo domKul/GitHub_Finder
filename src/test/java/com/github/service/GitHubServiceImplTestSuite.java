@@ -13,7 +13,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -29,7 +32,18 @@ public class GitHubServiceImplTestSuite {
      void setUp() {
         MockitoAnnotations.openMocks(this);
         WebClient.Builder webClientBuilder = WebClient.builder();
-        gitHubService = new GitHubServiceImpl(webClientBuilder);
+        String githubApiUrl = loadGitHubApiUrlFromProperties();
+
+        gitHubService = new GitHubServiceImpl(webClientBuilder,githubApiUrl);
+    }
+    private String loadGitHubApiUrlFromProperties() {
+        Properties properties = new Properties();
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("application.properties")) {
+            properties.load(inputStream);
+            return properties.getProperty("github.api.url");
+        } catch (IOException e) {
+            throw new RuntimeException("error with application.properties", e);
+        }
     }
 
     @Test

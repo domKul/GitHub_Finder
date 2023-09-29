@@ -1,6 +1,7 @@
 # GitHub Repository API
 
 This is a Java Spring Boot application that provides an API to list GitHub repositories of a user that are not forks. It also handles error responses for non-existing users and unsupported media types.
+# [Docker image](https://hub.docker.com/r/dominikdk/github_finder)
 
 ## Endpoint List:
 - getUserInfo(PathVariable String username, @RequestHeader("Accept") MediaType acceptHeader)
@@ -51,3 +52,4 @@ EXAMPLE OF RESPOSN
     "detail": "Acceptable representations: [application/json].",
     "instance": "/github/user-info/domkull"
 }
+```
